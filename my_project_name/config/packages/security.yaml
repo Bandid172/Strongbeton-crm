@@ -13,10 +13,21 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+
+        user_create:
+            pattern: ^/api/users/my
+            methods:
+                - post
+            security: false
         main:
             lazy: true
             provider: app_user_provider
-
+            json_login:
+                check_path: /api/users/auth
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
 
@@ -26,9 +37,8 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/api/.+, roles: ROLE_ADMIN }
+        - { path: ^/api/.+, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/api, roles: PUBLIC_ACCESS }
-
 when@test:
     security:
         password_hashers:
