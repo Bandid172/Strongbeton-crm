@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpFoundation\Response;
 
 
 class AuthController extends AbstractController
@@ -24,17 +25,25 @@ class AuthController extends AbstractController
         $this->passwordHasher = $passwordHasher;
         $this->jwtManager = $jwtManager;
     }
-    #[Route('/login', name: 'login', methods: ['GET', 'POST'])]
-    public function login(Request $request): JsonResponse
+    
+    // public function login(Request $request): JsonResponse
+    // {
+    //     $user = $this->entityManager->getRepository(User::class)->findOneBy(['username' => $request->get('username')]);
+
+    //     if (!$user || !$this->passwordHasher->isPasswordValid($user, $request->get('password'))) {
+    //         return new JsonResponse(['message' => 'Username or password is incorrect', 401]);
+    //     }
+
+    //     $token = $this->jwtManager->create($user);
+
+    //     return new JsonResponse(['token' => $token]);
+    // }
+
+    #[Route('/login', name: 'app_login', methods: ['GET', 'POST'])]
+    public function login(): Response
     {
-        $user = $this->entityManager->getRepository(User::class)->findOneBy(['username' => $request->get('username')]);
-
-        if (!$user || !$this->passwordHasher->isPasswordValid($user, $request->get('password'))) {
-            return new JsonResponse(['message' => 'Username or password is incorrect', 401]);
-        }
-
-        $token = $this->jwtManager->create($user);
-
-        return new JsonResponse(['token' => $token]);
+        return $this->render('admin/index.html.twig', [
+            'variable' => 'Hello, World!',
+        ]);
     }
 }

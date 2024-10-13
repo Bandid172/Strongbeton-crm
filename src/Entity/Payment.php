@@ -15,6 +15,10 @@ use Symfony\Component\Serializer\Attribute\Groups;
 )]
 class Payment
 {
+    const PAYMENT_RECEIVED = 'Payment received';
+    const PAYMENT_AWAITING = 'Awaiting for payment';
+    const PAYMENT_PARTIALLY_MADE = 'Partially paid';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -23,23 +27,23 @@ class Payment
 
     #[ORM\OneToOne(inversedBy: 'payment', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['payment:read'])]
-    private ?Order $orderId = null; // will be created after order
+    #[Groups(['payment:read', 'payment:write'])]
+    private ?Order $orderId = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     #[Groups(['payment:read'])]
-    private ?\DateTimeInterface $paymentDate = null; // wi
+    private ?\DateTimeInterface $paymentDate = null; // doesn't exist
 
     #[ORM\Column]
-    #[Groups(['payment:read'])]
+    #[Groups(['payment:read', 'payment:write'])]
     private ?float $amountPiad = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['payment:read'])]
+    #[Groups(['payment:read', 'payment:write'])] // use enums or const vars
     private ?string $paymentMethod = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['payment:read'])]
+    #[Groups(['payment:read', 'payment:write'])] // use enums or const vars
     private ?string $paymentStatus = null;
 
     #[ORM\Column]
@@ -47,12 +51,12 @@ class Payment
     private ?float $balanceDue = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['payment:read'])]
-    private ?string $currency = null;
+    #[Groups(['payment:read', 'payment:write'])]
+    private ?string $currency = null; // dex
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['payment:read'])]
-    private ?string $notes = null;
+    #[Groups(['payment:read', 'payment:write'])]
+    private ?string $notes = null; // dex
 
     #[ORM\Column]
     #[Groups(['payment:read'])]

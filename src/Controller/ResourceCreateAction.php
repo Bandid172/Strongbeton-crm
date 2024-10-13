@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
-use App\componenet\factory\ResourceFactory;
-use App\componenet\manager\ResourceManager;
+use App\Component\Factory\ResourceFactory;
+use App\Component\Manager\ResourceManager;
 use App\Entity\Resource;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 

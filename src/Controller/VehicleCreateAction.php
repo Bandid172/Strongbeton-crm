@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
-use App\componenet\factory\VehicleFactory;
-use App\componenet\manager\VehicleManager;
+use App\Component\Factory\VehicleFactory;
+use App\Component\Manager\VehicleManager;
 use App\Entity\Vehicle;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 

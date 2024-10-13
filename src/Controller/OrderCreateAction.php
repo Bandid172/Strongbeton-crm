@@ -2,10 +2,9 @@
 
 namespace App\Controller;
 
-use App\componenet\factory\OrderFactory;
-use App\componenet\manager\OrderManager;
+use App\Component\Factory\OrderFactory;
+use App\Component\Manager\OrderManager;
 use App\Entity\Order;
-use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -26,8 +25,7 @@ class OrderCreateAction extends AbstractController
         $order = $this->orderFactory->create(
             $data->getCustomer(),
             $data->getOrderDate(),
-            $data->getStatus(),
-            $data->getPaymentMethod(),
+            $data->getPaymentStatus(),
             $data->getShippingAddress(),
             $data->getOrderItem(),
             $data->getTotalQuantity(),

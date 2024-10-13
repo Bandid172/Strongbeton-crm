@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
-use App\componenet\factory\InflowFactory;
-use App\componenet\manager\InflowManager;
+use App\Component\Factory\InflowFactory;
+use App\Component\Manager\InflowManager;
 use App\Entity\Inflow;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 

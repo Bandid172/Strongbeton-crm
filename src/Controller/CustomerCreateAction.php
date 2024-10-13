@@ -2,41 +2,31 @@
 
 namespace App\Controller;
 
-use App\componenet\builder\CustomerBuilder;
-use App\componenet\manager\CustomerManager;
+use App\Component\Factory\CustomerFactory;
+use App\Component\Manager\CustomerManager;
 use App\Entity\Customer;
-use Exception;
-use JetBrains\PhpStorm\NoReturn;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class CustomerCreateAction extends AbstractController
 {
     public function __construct(
         private readonly CustomerManager $customerManager,
-        private readonly CustomerBuilder $builder,
+        private readonly CustomerFactory $customerFactory,
     )
     {
     }
 
-    /**
-     * @throws Exception
-     */
-    #[NoReturn] public function __invoke(Customer $data): void
+    public function __invoke(Customer $data, ValidatorInterface $validator): void
     {
-        $customer = $this->builder
-            ->setFirstName($data->getFirstName())
-            ->setLastName($data->getLastName())
-            ->setPhoneNumber($data->getPhoneNumber())
-            ->setEmail($data->getEmail() ?? null)
-            ->setNotes($data->getNotes() ?? null)
-            ->setCreatedAt()
-            ->setUpdatedAt();
-
-        foreach ($data->getOrganization() as $organization) {
-            $customer->addOrganization($organization);
-        }
-
-        $customer = $this->builder->build();
+        $customer = $this->customerFactory->create(
+            $data->getFirstName(),
+            $data->getLastName(),
+            $data->getPhoneNumber(),
+            $data->getEmail(),
+            $data->getNotes(),
+            $data->getOrganization()
+        );
 
         $this->customerManager->save($customer, true);
 

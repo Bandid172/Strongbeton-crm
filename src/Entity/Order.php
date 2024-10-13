@@ -37,6 +37,13 @@ use Symfony\Component\Serializer\Attribute\Groups;
 )]
 class Order
 {
+    const SALES_ORDER_PENDING = 'Pending';
+    const SALES_ORDER_CONFIRMED = 'Confirmed';
+    const SALES_ORDER_PROCESSING = 'Processing';
+    const SALES_ORDER_ON_HOLD = 'On Hold';
+    const SALES_ORDER_CANCELLED = 'Cancelled';
+    const SALES_ORDER_COMPLETED = 'Completed';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -49,7 +56,7 @@ class Order
 
     #[ORM\ManyToOne(inversedBy: 'orders')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['order:read', 'order:write'])] // customer name or organization name
+    #[Groups(['order:read', 'order:write'])]
     private ?Customer $customer = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
@@ -58,7 +65,7 @@ class Order
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     #[Groups(['order:read'])]
-    private ?\DateTimeInterface $deliveryDate = null;
+    private ?\DateTimeInterface $deliveryDate = null; // estimated delivery time
 
     #[ORM\Column(length: 255)]
     #[Groups(['order:read', 'order:write'])]
@@ -90,7 +97,7 @@ class Order
     private ?float $discount = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['order:read', 'order:write'])] // will change later to automatic
+    #[Groups(['order:read', 'order:write'])]
     private ?float $shippingCost = null;
 
     #[ORM\Column]
@@ -102,7 +109,7 @@ class Order
     private ?float $totalAmount = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['order:read', 'order:write'])]
+    #[Groups(['order:read', 'order:write'])] // enum or const vars
     private ?string $paymentMethod = null;
 
     #[ORM\Column]
@@ -114,11 +121,11 @@ class Order
     private ?float $balanceDue = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['order:read', 'order:write'])]
+    #[Groups(['order:read', 'order:write'])] // enums or const vars
     private ?string $deliveryStatus = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    #[Groups(['order:read'])]
+    #[Groups(['order:read'])] // when status is changed to completed
     private ?\DateTimeInterface $shippedDate = null;
 
     #[ORM\ManyToOne(inversedBy: 'orders')]

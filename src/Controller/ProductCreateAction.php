@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
-use App\componenet\factory\ProductFactory;
-use App\componenet\manager\ProductManager;
+use App\Component\Factory\ProductFactory;
+use App\Component\Manager\ProductManager;
 use App\Entity\Product;
 use App\Repository\ProductRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

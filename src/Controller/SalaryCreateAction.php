@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
-use App\componenet\factory\SalaryFactory;
-use App\componenet\manager\SalaryManager;
+use App\Component\Factory\SalaryFactory;
+use App\Component\Manager\SalaryManager;
 use App\Entity\SalaryReport;
 use App\Repository\SalaryReportRepository;
 use JetBrains\PhpStorm\NoReturn;

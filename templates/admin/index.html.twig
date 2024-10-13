@@ -3,6 +3,20 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h1>Admin Dashboard</h1>
-    <p>Welcome to the admin area.</p>
+    <h1>Admin Login</h1>
+
+    <form method="POST" action="{{ path('app_login') }}">
+        <div>
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="_username" required>
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="_password" required>
+            <input type="hidden" name="_target_path" value="/sardor" />
+        </div>
+        <div>
+            <button type="submit">Login</button>
+        </div>
+    </form>
 {% endblock %}

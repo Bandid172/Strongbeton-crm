@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
-use App\componenet\factory\OutflowFactory;
-use App\componenet\manager\OutflowManager;
+use App\Component\Factory\OutflowFactory;
+use App\Component\Manager\OutflowManager;
 use App\Entity\Outflow;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
