@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
-use App\componenet\factory\UserFactory;
-use App\componenet\manager\UserManager;
+use App\Component\Factory\UserFactory;
+use App\Component\Manager\UserManager;
 use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 

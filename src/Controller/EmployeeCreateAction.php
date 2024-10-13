@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
-use App\componenet\builder\EmployeeBuilder;
-use App\componenet\manager\EmployeeManager;
+use App\Component\Manager\EmployeeManager;
+use App\Component\Factory\EmployeeFactory;
 use App\Entity\Employee;
 use JetBrains\PhpStorm\NoReturn;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -12,35 +12,30 @@ class EmployeeCreateAction extends AbstractController
 {
     public function __construct(
         private readonly EmployeeManager $employeeManager,
-        private readonly EmployeeBuilder $employeeBuilder
+        private readonly EmployeeFactory $employeeFactory,
     )
     {
     }
 
-    /**
-     * @throws \Exception
-     */
     #[NoReturn] public function __invoke(Employee $data): void
     {
-        $employee = $this->employeeBuilder
-            ->setName($data->getName())
-            ->setLastName($data->getLastName())
-            ->setMiddleName($data->getMiddleName())
-            ->setDateOfBirth($data->getDateOfBirth())
-            ->setGender($data->getGender())
-            ->setEmail($data->getEmail())
-            ->setPhoneNumber($data->getPhoneNumber())
-            ->setAddress($data->getAddress())
-            ->setDepartment($data->getDepartment())
-            ->setPosition($data->getPosition())
-            ->setDateOfHire($data->getDateOfHire())
-            ->setDateOfTermination($data->getDateOfTermination())
-            ->setState($data->getState())
-            ->setNotes($data->getNotes())
-            ->setUser($data->getUser())
-            ->setPicture($data->getPicture())
-            ->setTimestamps()
-            ->build();
+        $employee = $this->employeeFactory->create(
+            $data->getName(),
+            $data->getLastName(),
+            $data->getMiddleName(),
+            $data->getDateOfBirth(),
+            $data->getGender(),
+            $data->getEmail(),
+            $data->getPhoneNumber(),
+            $data->getAddress(),
+            $data->getDepartment(),
+            $data->getPosition(),
+            $data->getDateOfHire(),
+            $data->getState(),
+            $data->getNotes(),
+            $data->getUser(),
+            $data->getPicture()
+        );
 
         $this->employeeManager->save($employee, true);
 
