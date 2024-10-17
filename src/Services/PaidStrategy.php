@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Component\custom;
+namespace App\Services;
 
 use App\Component\Interfaces\PayrollStrategyInterface;
 use App\Entity\SalaryReport;

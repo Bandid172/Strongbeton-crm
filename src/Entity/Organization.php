@@ -92,6 +92,11 @@ class Organization
     #[Groups(['organization:read'])]
     private ?Customer $customer = null;
 
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTime();
+    }
     public function getId(): ?int
     {
         return $this->id;

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Component\Factory\CustomerFactory;
 use App\Component\Manager\CustomerManager;
 use App\Entity\Customer;
+use JetBrains\PhpStorm\NoReturn;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -17,7 +18,7 @@ class CustomerCreateAction extends AbstractController
     {
     }
 
-    public function __invoke(Customer $data, ValidatorInterface $validator): void
+    #[NoReturn] public function __invoke(Customer $data, ValidatorInterface $validator): void
     {
         $customer = $this->customerFactory->create(
             $data->getFirstName(),

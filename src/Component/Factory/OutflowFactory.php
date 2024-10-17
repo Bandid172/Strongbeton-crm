@@ -23,9 +23,7 @@ class OutflowFactory
             ->setAmount($amount)
             ->setCurrency($currency)
             ->setPaymentMethod($paymentMethod)
-            ->setExpenseDescription($expenseDescription)
-            ->setCreatedAt(new \DateTimeImmutable('now', new \DateTimeZone('Asia/Tashkent')))
-            ->setUpdatedAt(new \DateTime('now', new \DateTimeZone('Asia/Tashkent')));
+            ->setExpenseDescription($expenseDescription);
 
         return $outflow;
     }

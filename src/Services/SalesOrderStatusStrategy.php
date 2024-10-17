@@ -18,4 +18,14 @@ class SalesOrderStatusStrategy
             default => throw new \InvalidArgumentException("Invalid order status: $status"),
         };
     }
+
+    public static function getDeliveryStatus(string $deliveryStatus): string
+    {
+        return match ($deliveryStatus) {
+            'Delivered' => ORDER::SALES_ORDER_DELIVERED,
+            'Enroute' => ORDER::SALES_ORDER_ENROUTE,
+            'Awaiting Shipment' => ORDER::SALES_ORDER_DELIVERY_PENDING,
+            default => throw new \InvalidArgumentException("Invalid delivery status: $deliveryStatus"),
+        };
+    }
 }

@@ -9,7 +9,7 @@ use Exception;
 
 class ProductFactory
 {
-    private $resourceRepository;
+    private ResourceRepository $resourceRepository;
 
     public function __construct(ResourceRepository $resourceRepository)
     {
@@ -42,8 +42,6 @@ class ProductFactory
             ->setEnabled($enabled)
             ->setPricePerUnit($pricePerUnit)
             ->setCostPerUnit($costPerUnit)
-            ->setCreatedAt(new \DateTimeImmutable('now', new \DateTimeZone('Asia/Tashkent')))
-            ->setUpdatedAt(new \DateTime('now', new \DateTimeZone('Asia/Tashkent')))
             ->setStockQuantity($maxProductStock)
             ->setRequiredSandAmount($requiredSand)
             ->setRequiredCementAmount($requiredCement)

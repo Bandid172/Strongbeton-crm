@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Component\custom;
+namespace App\Services;
 
 use App\Component\Interfaces\PayrollStrategyInterface;
 use App\Entity\SalaryReport;
 
-class PendingStrategy implements PayrollStrategyInterface
+class NotPaidStrategy implements PayrollStrategyInterface
 {
     public function process(SalaryReport $salaryReport, ?float $paidSalaryAmount): void
     {
         $netSalary = $salaryReport->getNetSalary();
-        $salaryReport->setPaidSalaryAmount($paidSalaryAmount);
-        $salaryReport->setRemainingSalaryAmount($netSalary - $paidSalaryAmount);
+        $salaryReport->setPaidSalaryAmount(0);
+        $salaryReport->setRemainingSalaryAmount($netSalary);
     }
 }

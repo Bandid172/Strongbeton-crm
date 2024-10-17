@@ -2,48 +2,30 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
-use Doctrine\ORM\EntityManagerInterface;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Response;
-
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class AuthController extends AbstractController
 {
-    private $entityManager;
-    private $passwordHasher;
-    private $jwtManager;
-
-    public function __construct(EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, JWTTokenManagerInterface $jwtManager)
+    #[Route('/logout', name: 'app_logout', methods: ['GET'])]
+    public function logout(): never
     {
-        $this->entityManager = $entityManager;
-        $this->passwordHasher = $passwordHasher;
-        $this->jwtManager = $jwtManager;
+        throw new \Exception('Don\'t forget to activate logout in security.yaml');
     }
-    
-    // public function login(Request $request): JsonResponse
-    // {
-    //     $user = $this->entityManager->getRepository(User::class)->findOneBy(['username' => $request->get('username')]);
-
-    //     if (!$user || !$this->passwordHasher->isPasswordValid($user, $request->get('password'))) {
-    //         return new JsonResponse(['message' => 'Username or password is incorrect', 401]);
-    //     }
-
-    //     $token = $this->jwtManager->create($user);
-
-    //     return new JsonResponse(['token' => $token]);
-    // }
-
     #[Route('/login', name: 'app_login', methods: ['GET', 'POST'])]
     public function login(): Response
     {
         return $this->render('admin/index.html.twig', [
             'variable' => 'Hello, World!',
         ]);
+    }
+
+    #[Route('/rand', name: 'app_rand', methods: ['GET'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function rand(): Response
+    {
+        return new Response('Hello', 201);
     }
 }

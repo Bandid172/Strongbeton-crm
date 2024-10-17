@@ -6,16 +6,25 @@ use App\Component\Factory\ProductFactory;
 use App\Component\Manager\ProductManager;
 use App\Entity\Product;
 use App\Repository\ProductRepository;
+use Exception;
+use JetBrains\PhpStorm\NoReturn;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Attribute\Route;
 
 class ProductCreateAction extends AbstractController
 {
-    public function __construct(private ProductFactory $productFactory, private ProductManager $productManager)
+    public function __construct(
+        private readonly ProductFactory $productFactory,
+        private readonly ProductManager $productManager
+    )
     {
 
     }
-    public function __invoke(Product $data)
+
+    /**
+     * @throws Exception
+     */
+    #[NoReturn] public function __invoke(Product $data): void
     {
         $product = $this->productFactory->create(
             $data->getName(),

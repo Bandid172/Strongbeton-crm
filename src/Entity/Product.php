@@ -98,6 +98,11 @@ class Product
     #[Groups(['product:read', 'product:write'])]
     private ?float $requiredStoneAmount = null;
 
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTime();
+    }
     public function getId(): ?int
     {
         return $this->id;

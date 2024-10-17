@@ -5,8 +5,9 @@ namespace App\Component\Factory;
 use App\Entity\Customer;
 use App\Entity\Employee;
 use App\Entity\Order;
-use App\Entity\Payment;
 use App\Entity\Product;
+use App\Services\OrderNumberGenerator;
+use App\Services\PaymentMethodStrategy;
 use App\Services\PaymentStatusStrategy;
 use App\Services\SalesOrderBalanceDueCalculator;
 use App\Services\SalesOrderCalculateSubTotal;
@@ -30,9 +31,9 @@ class OrderFactory
         float $shippingCost,
         string $paymentMethod,
         float $paidAmount,
-        string $deliveryStatus,
         Employee $salesRepresentative,
-        string $notes
+        string $notes,
+        iterable $vehicles,
     ): Order
     {
         $order = new Order();
@@ -42,21 +43,9 @@ class OrderFactory
         $balanceDue = SalesOrderBalanceDueCalculator::calculateBalanceDue($totalAmount, $paidAmount);
         $paymentState = PaymentStatusStrategy::getPaymentStatus($paymentStatus);
 
-        $payment = new Payment();
-        $payment
-            ->setOrderId($order)
-            ->setAmountPiad($paidAmount)
-            ->setPaymentMethod($paymentMethod)
-            ->setPaymentStatus($paymentState)
-            ->setCurrency('UZS')
-            ->setBalanceDue($balanceDue)
-            ->setCreatedAt(new \DateTimeImmutable())
-            ->setUpdatedAt(new \DateTime())
-            ->setCustomer($customer);
-
         $order
             ->setCustomer($customer)
-            ->setOrderNumber(123)
+            ->setOrderNumber(OrderNumberGenerator::generateOrderNumber())
             ->setOrderDate($orderDate)
             ->setStatus(SalesOrderStatusStrategy::getSalesOrderStatus('Pending'))
             ->setPaymentStatus($paymentState)
@@ -66,17 +55,18 @@ class OrderFactory
             ->setDiscount($discount)
             ->setShippingCost($shippingCost)
             ->setShippingRequired(true)
-            ->setPaymentMethod($paymentMethod)
+            ->setPaymentMethod(PaymentMethodStrategy::getPaymentMethod($paymentMethod))
             ->setSubTotal($subTotal)
             ->setTotalAmount($totalAmount)
             ->setBalanceDue($balanceDue)
             ->setPaidAmount($paidAmount)
-            ->setDeliveryStatus($deliveryStatus)
+            ->setDeliveryStatus(SalesOrderStatusStrategy::getDeliveryStatus('Awaiting Shipment'))
             ->setSalesRepresentative($salesRepresentative)
-            ->setNotes($notes)
-            ->setCreatedAt(new \DateTimeImmutable('now', new \DateTimeZone('Asia/Tashkent')))
-            ->setUpdatedAt(new \DateTime('now', new \DateTimeZone('Asia/Tashkent')))
-            ->setPayment($payment);
+            ->setNotes($notes);
+
+        foreach ($vehicles as $vehicle) {
+            $order->addVehicle($vehicle);
+        }
 
         return $order;
     }

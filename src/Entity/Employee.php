@@ -126,6 +126,8 @@ class Employee
     {
         $this->salaryReports = new ArrayCollection();
         $this->orders = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTime();
     }
 
     public function getId(): ?int

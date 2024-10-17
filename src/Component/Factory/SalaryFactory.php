@@ -6,13 +6,9 @@ use App\Entity\Employee;
 use App\Entity\SalaryReport;
 use App\Services\SalaryCalculator;
 use App\Services\SalaryPayrollStrategy;
-use Exception;
 
 class SalaryFactory
 {
-    /**
-     * @throws Exception
-     */
     public function create(
         float $baseSalary,
         string $payPeriod,
@@ -43,9 +39,7 @@ class SalaryFactory
             ->setPaymentMethod($paymentMethod)
             ->setPayrollStatus($payrollStatus)
             ->setNotes($notes)
-            ->setEmployee($employee)
-            ->setCreatedAt(new \DateTimeImmutable('now', new \DateTimeZone('Asia/Tashkent')))
-            ->setUpdatedAt(new \DateTime('now', new \DateTimeZone('Asia/Tashkent')));
+            ->setEmployee($employee);
 
             SalaryCalculator::calculateSalaryAndTax($salaryReport);
 

@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Component\Factory\OrderFactory;
+use App\Component\Factory\PaymentFactory;
 use App\Component\Manager\OrderManager;
+use App\Component\Manager\PaymentManager;
 use App\Entity\Order;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -11,8 +13,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class OrderCreateAction extends AbstractController
 {
     public function __construct(
-        private OrderManager $orderManager,
-        private OrderFactory $orderFactory,
+        private readonly OrderManager $orderManager,
+        private readonly OrderFactory $orderFactory,
+        private readonly PaymentFactory $paymentFactory,
+        private readonly PaymentManager $paymentManager,
     )
     {
     }
@@ -33,15 +37,16 @@ class OrderCreateAction extends AbstractController
             $data->getShippingCost(),
             $data->getPaymentMethod(),
             $data->getPaidAmount(),
-            $data->getDeliveryStatus(),
             $data->getSalesRepresentative(),
             $data->getNotes(),
+            $data->getVehicle()
         );
 
-        foreach ($data->getVehicles() as $vehicle) {
-            $order->addVehicle($vehicle);
-        }
+        $payment = $this->paymentFactory->create($order);
 
+        $order->setPayment($payment);
+
+        $this->paymentManager->save($payment, true);
         $this->orderManager->save($order, true);
     }
 }
