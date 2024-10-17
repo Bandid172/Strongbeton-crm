@@ -2,9 +2,6 @@
 
 namespace App\Services;
 
-use App\Component\custom\NotPaidStrategy;
-use App\Component\custom\PaidStrategy;
-use App\Component\custom\PendingStrategy;
 use App\Component\Interfaces\PayrollStrategyInterface;
 use App\Entity\SalaryReport;
 

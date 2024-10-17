@@ -31,9 +31,7 @@ class OrganizationFactory
             ->setActive($active)
             ->setIndustry($industry)
             ->setWebsite($website)
-            ->setNotes($notes)
-            ->setCreatedAt(new \DateTimeImmutable())
-            ->setUpdatedAt(new \DateTime());
+            ->setNotes($notes);
 
         return $organization;
     }

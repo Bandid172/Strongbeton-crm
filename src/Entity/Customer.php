@@ -101,6 +101,8 @@ class Customer
         $this->organization = new ArrayCollection();
         $this->orders = new ArrayCollection();
         $this->payments = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTime();
     }
 
     public function getId(): ?int

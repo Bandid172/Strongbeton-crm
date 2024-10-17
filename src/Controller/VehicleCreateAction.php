@@ -5,15 +5,24 @@ namespace App\Controller;
 use App\Component\Factory\VehicleFactory;
 use App\Component\Manager\VehicleManager;
 use App\Entity\Vehicle;
+use Exception;
+use JetBrains\PhpStorm\NoReturn;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class VehicleCreateAction extends AbstractController
 {
-    public function __construct(private VehicleManager $vehicleManager, private VehicleFactory $vehicleFactory)
+    public function __construct(
+        private readonly VehicleManager $vehicleManager,
+        private readonly VehicleFactory $vehicleFactory
+    )
     {
 
     }
-    public function __invoke(Vehicle $data): void
+
+    /**
+     * @throws Exception
+     */
+    #[NoReturn] public function __invoke(Vehicle $data): void
     {
         $vehicle = $this->vehicleFactory->create(
             $data->getName(),

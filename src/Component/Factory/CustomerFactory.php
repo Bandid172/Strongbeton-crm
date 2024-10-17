@@ -22,9 +22,7 @@ class CustomerFactory
             ->setLastName($lastName)
             ->setPhoneNumber($phoneNumber)
             ->setEmail($email)
-            ->setNotes($notes)
-            ->setCreatedAt(new \DateTimeImmutable())
-            ->setUpdatedAt(new \DateTime());
+            ->setNotes($notes);
 
         foreach ($organizations as $organization) {
             $customer->addOrganization($organization);

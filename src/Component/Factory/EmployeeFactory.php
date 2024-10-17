@@ -43,9 +43,7 @@ class EmployeeFactory
             ->setState($state)
             ->setNotes($notes)
             ->setUser($user)
-            ->setPicture($picture)
-            ->setCreatedAt(new \DateTimeImmutable())
-            ->setUpdatedAt(new \DateTime());
+            ->setPicture($picture);
 
         return $employee;
     }

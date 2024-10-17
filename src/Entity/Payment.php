@@ -18,6 +18,12 @@ class Payment
     const PAYMENT_RECEIVED = 'Payment received';
     const PAYMENT_AWAITING = 'Awaiting for payment';
     const PAYMENT_PARTIALLY_MADE = 'Partially paid';
+    const PAYMENT_METHOD_CASH = 'Cash';
+    const PAYMENT_METHOD_BANK_TRANSFER = 'Bank transfer';
+    const PAYMENT_METHOD_CREDIT_CARD = 'Credit Card';
+    const PAYMENT_METHOD_PAYME = 'Payme';
+    const PAYMENT_METHOD_CLICK = 'Click';
+    const PAYMENT_METHOD_UZUM_BANK = 'Uzum Bank';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -32,11 +38,11 @@ class Payment
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     #[Groups(['payment:read'])]
-    private ?\DateTimeInterface $paymentDate = null; // doesn't exist
+    private ?\DateTimeInterface $paymentDate = null;
 
     #[ORM\Column]
     #[Groups(['payment:read', 'payment:write'])]
-    private ?float $amountPiad = null;
+    private ?float $amountPaid = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['payment:read', 'payment:write'])] // use enums or const vars
@@ -50,13 +56,13 @@ class Payment
     #[Groups(['payment:read'])]
     private ?float $balanceDue = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['payment:read', 'payment:write'])]
-    private ?string $currency = null; // dex
+    private ?string $currency = null; // set on edit action
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups(['payment:read', 'payment:write'])]
-    private ?string $notes = null; // dex
+    private ?string $notes = null; // set on edit action
 
     #[ORM\Column]
     #[Groups(['payment:read'])]
@@ -70,6 +76,11 @@ class Payment
     #[Groups(['payment:read'])]
     private ?Customer $customer = null;
 
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTime();
+    }
     public function getId(): ?int
     {
         return $this->id;
@@ -99,14 +110,14 @@ class Payment
         return $this;
     }
 
-    public function getAmountPiad(): ?float
+    public function getAmountPaid(): ?float
     {
-        return $this->amountPiad;
+        return $this->amountPaid;
     }
 
-    public function setAmountPiad(float $amountPiad): static
+    public function setAmountPaid(float $amountPaid): static
     {
-        $this->amountPiad = $amountPiad;
+        $this->amountPaid = $amountPaid;
 
         return $this;
     }
@@ -152,7 +163,7 @@ class Payment
         return $this->currency;
     }
 
-    public function setCurrency(string $currency): static
+    public function setCurrency(?string $currency): static
     {
         $this->currency = $currency;
 

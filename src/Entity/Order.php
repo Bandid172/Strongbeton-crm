@@ -43,6 +43,9 @@ class Order
     const SALES_ORDER_ON_HOLD = 'On Hold';
     const SALES_ORDER_CANCELLED = 'Cancelled';
     const SALES_ORDER_COMPLETED = 'Completed';
+    const SALES_ORDER_DELIVERED = 'Delivered';
+    const SALES_ORDER_ENROUTE = 'Enroute';
+    const SALES_ORDER_DELIVERY_PENDING = 'Awaiting Shipment';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -51,7 +54,7 @@ class Order
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['order:read'])] // auto number generator
+    #[Groups(['order:read'])]
     private ?string $orderNumber = null;
 
     #[ORM\ManyToOne(inversedBy: 'orders')]
@@ -109,7 +112,7 @@ class Order
     private ?float $totalAmount = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['order:read', 'order:write'])] // enum or const vars
+    #[Groups(['order:read', 'order:write'])]
     private ?string $paymentMethod = null;
 
     #[ORM\Column]
@@ -152,13 +155,15 @@ class Order
     /**
      * @var Collection<int, Vehicle>
      */
-    #[ORM\ManyToMany(targetEntity: Vehicle::class, mappedBy: 'salesOrder', cascade: ['persist', 'remove'])]
+    #[ORM\ManyToMany(targetEntity: Vehicle::class, inversedBy: 'orders')]
     #[Groups(['order:read', 'order:write'])]
-    private Collection $vehicles;
+    private Collection $vehicle;
 
     public function __construct()
     {
-        $this->vehicles = new ArrayCollection();
+        $this->vehicle = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \Datetime();
     }
 
     public function getId(): ?int
@@ -474,16 +479,15 @@ class Order
     /**
      * @return Collection<int, Vehicle>
      */
-    public function getVehicles(): Collection
+    public function getVehicle(): Collection
     {
-        return $this->vehicles;
+        return $this->vehicle;
     }
 
     public function addVehicle(Vehicle $vehicle): static
     {
-        if (!$this->vehicles->contains($vehicle)) {
-            $this->vehicles->add($vehicle);
-            $vehicle->addSalesOrder($this);
+        if (!$this->vehicle->contains($vehicle)) {
+            $this->vehicle->add($vehicle);
         }
 
         return $this;
@@ -491,9 +495,7 @@ class Order
 
     public function removeVehicle(Vehicle $vehicle): static
     {
-        if ($this->vehicles->removeElement($vehicle)) {
-            $vehicle->removeSalesOrder($this);
-        }
+        $this->vehicle->removeElement($vehicle);
 
         return $this;
     }

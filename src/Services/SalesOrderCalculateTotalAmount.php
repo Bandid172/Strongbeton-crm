@@ -6,7 +6,7 @@ class SalesOrderCalculateTotalAmount
 {
     public static function calculateTotalAmount(float $subtotal, ?float $discount, ?float $shippingCost): float
     {
-        $totalAmount = 0;
+        $totalAmount = $subtotal;
         if ($discount !== null && $discount > 0) {
             $totalAmount = $subtotal - $discount;
         }

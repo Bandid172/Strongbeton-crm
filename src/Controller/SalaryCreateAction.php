@@ -6,16 +6,23 @@ use App\Component\Factory\SalaryFactory;
 use App\Component\Manager\SalaryManager;
 use App\Entity\SalaryReport;
 use App\Repository\SalaryReportRepository;
+use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Attribute\Route;
 
 class SalaryCreateAction extends AbstractController
 {
-    public function __construct(private readonly SalaryFactory $salaryFactory, private readonly SalaryManager $salaryManager)
+    public function __construct(
+        private readonly SalaryFactory $salaryFactory,
+        private readonly SalaryManager $salaryManager
+    )
     {
     }
 
+    /**
+     * @throws Exception
+     */
     #[NoReturn] public function __invoke(SalaryReport $data): void
     {
         $salaryReportData = $this->salaryFactory->create(

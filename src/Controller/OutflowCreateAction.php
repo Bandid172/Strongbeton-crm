@@ -5,17 +5,18 @@ namespace App\Controller;
 use App\Component\Factory\OutflowFactory;
 use App\Component\Manager\OutflowManager;
 use App\Entity\Outflow;
+use JetBrains\PhpStorm\NoReturn;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class OutflowCreateAction extends AbstractController
 {
     public function __construct(
-        private OutflowManager $outflowManager,
-        private OutflowFactory $outflowFactory,
+        private readonly OutflowManager $outflowManager,
+        private readonly OutflowFactory $outflowFactory,
     )
     {
     }
-    public function __invoke(Outflow $data): void
+    #[NoReturn] public function __invoke(Outflow $data): void
     {
         $outflow = $this->outflowFactory->create(
             $data->getTransactionDate(),

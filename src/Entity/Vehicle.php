@@ -71,13 +71,14 @@ class Vehicle
     /**
      * @var Collection<int, Order>
      */
-    #[ORM\ManyToMany(targetEntity: Order::class, inversedBy: 'vehicles')]
-    #[Groups(['vehicle:read'])]
-    private Collection $salesOrder;
+    #[ORM\ManyToMany(targetEntity: Order::class, mappedBy: 'vehicle')]
+    private Collection $orders;
 
     public function __construct()
     {
-        $this->salesOrder = new ArrayCollection();
+        $this->orders = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTime();
     }
 
     public function getId(): ?int
@@ -160,23 +161,26 @@ class Vehicle
     /**
      * @return Collection<int, Order>
      */
-    public function getSalesOrder(): Collection
+    public function getOrders(): Collection
     {
-        return $this->salesOrder;
+        return $this->orders;
     }
 
-    public function addSalesOrder(Order $salesOrder): static
+    public function addOrder(Order $order): static
     {
-        if (!$this->salesOrder->contains($salesOrder)) {
-            $this->salesOrder->add($salesOrder);
+        if (!$this->orders->contains($order)) {
+            $this->orders->add($order);
+            $order->addVehicle($this);
         }
 
         return $this;
     }
 
-    public function removeSalesOrder(Order $salesOrder): static
+    public function removeOrder(Order $order): static
     {
-        $this->salesOrder->removeElement($salesOrder);
+        if ($this->orders->removeElement($order)) {
+            $order->removeVehicle($this);
+        }
 
         return $this;
     }
