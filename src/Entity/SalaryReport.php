@@ -20,7 +20,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
     operations: [
         new Get(),
         new Post(
-            uriTemplate: '/api/salary-reports',
+            uriTemplate: '/salary-reports',
             controller: SalaryCreateAction::class,
             name: 'create_salary_report'
         ),
@@ -34,33 +34,29 @@ use Symfony\Component\Serializer\Attribute\Groups;
 )]
 class SalaryReport
 {
-    const SALARY_STATUS_PAID = 'paid';
-    const SALARY_STATUS_PENDING = 'pending';
-    const SALARY_STATUS_UNPAID = 'not paid';
+    const SALARY_STATUS_PAID = 'Paid';
+    const SALARY_STATUS_PENDING = 'Partially Paid';
+    const SALARY_STATUS_UNPAID = 'Not Paid';
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     #[Groups(['salaryReport:read'])]
     private ?int $id = null;
 
-    #[ORM\Column]
-    #[Groups(['salaryReport:read', 'salaryReport:write'])]
-    private ?float $baseSalary = null;
-
     #[ORM\Column(length: 255)]
     #[Groups(['salaryReport:read', 'salaryReport:write'])]
     private ?string $payPeriod = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    #[Groups(['salaryReport:read', 'salaryReport:write'])]
+    #[Groups(['salaryReport:read'])]
     private ?\DateTimeInterface $payDate = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['salaryReport:read', 'salaryReport:write'])]
-    private ?string $currency = null;
+    private ?string $currency = null; //
 
     #[ORM\Column]
-    #[Groups(['salaryReport:read'])]
+    #[Groups(['salaryReport:read', 'salaryReport:write'])]
     private ?float $grossSalary = null;
 
     #[ORM\Column]
@@ -77,11 +73,11 @@ class SalaryReport
 
     #[ORM\Column(length: 255)]
     #[Groups(['salaryReport:read', 'salaryReport:write'])]
-    private ?string $taxInformation = null;
+    private ?string $taxInformation = null; //
 
     #[ORM\Column]
     #[Groups(['salaryReport:read'])]
-    private ?float $taxPercentage = null;
+    private ?float $taxPercentage = 12;
 
     #[ORM\Column]
     #[Groups(['salaryReport:read'])]
@@ -89,14 +85,14 @@ class SalaryReport
 
     #[ORM\Column(length: 255)]
     #[Groups(['salaryReport:read', 'salaryReport:write'])]
-    private ?string $salaryType = null;
+    private ?string $salaryType = null; //
 
     #[ORM\Column(length: 255)]
     #[Groups(['salaryReport:read', 'salaryReport:write'])]
-    private ?string $paymentMethod = null;
+    private ?string $paymentMethod = null; //
 
     #[ORM\Column(length: 255)]
-    #[Groups(['salaryReport:read', 'salaryReport:write'])]
+    #[Groups(['salaryReport:read'])]
     private ?string $payrollStatus = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -129,21 +125,10 @@ class SalaryReport
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTime();
     }
+
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getBaseSalary(): ?float
-    {
-        return $this->baseSalary;
-    }
-
-    public function setBaseSalary(float $baseSalary): static
-    {
-        $this->baseSalary = $baseSalary;
-
-        return $this;
     }
 
     public function getPayPeriod(): ?string
@@ -190,7 +175,7 @@ class SalaryReport
     public function setGrossSalary(float $grossSalary): static
     {
         $this->grossSalary = $grossSalary;
-
+        $this->calculateTaxAndNetSalary();
         return $this;
     }
 
@@ -214,7 +199,7 @@ class SalaryReport
     public function setBonuses(?int $bonuses): static
     {
         $this->bonuses = $bonuses;
-
+        $this->calculateTaxAndNetSalary();
         return $this;
     }
 
@@ -226,7 +211,7 @@ class SalaryReport
     public function setDeductions(?int $deductions): static
     {
         $this->deductions = $deductions;
-
+        $this->calculateTaxAndNetSalary();
         return $this;
     }
 
@@ -250,7 +235,7 @@ class SalaryReport
     public function setTaxPercentage(float $taxPercentage): static
     {
         $this->taxPercentage = $taxPercentage;
-
+        $this->calculateTaxAndNetSalary();
         return $this;
     }
 
@@ -297,6 +282,9 @@ class SalaryReport
 
     public function setPayrollStatus(string $payrollStatus): static
     {
+        if (!in_array($payrollStatus, [self::SALARY_STATUS_PAID, self::SALARY_STATUS_PENDING, self::SALARY_STATUS_UNPAID])) {
+            throw new \InvalidArgumentException("Invalid payment status");
+        }
         $this->payrollStatus = $payrollStatus;
 
         return $this;
@@ -321,7 +309,16 @@ class SalaryReport
 
     public function setPaidSalaryAmount(float $paidSalaryAmount): static
     {
+        if ($paidSalaryAmount > $this->netSalary) {
+            throw new \InvalidArgumentException("Paid salary amount must be equal or less than net salary.");
+        }
+
+        if ($paidSalaryAmount > 0) {
+            $this->payDate = new \DateTime();
+        }
+
         $this->paidSalaryAmount = $paidSalaryAmount;
+        $this->setRemainingSalaryAmount();
 
         return $this;
     }
@@ -331,9 +328,17 @@ class SalaryReport
         return $this->remainingSalaryAmount;
     }
 
-    public function setRemainingSalaryAmount(float $remainingSalaryAmount): static
+    public function setRemainingSalaryAmount(): static
     {
-        $this->remainingSalaryAmount = $remainingSalaryAmount;
+        $this->remainingSalaryAmount = $this->netSalary - $this->paidSalaryAmount;
+
+        if ($this->remainingSalaryAmount == 0) {
+            $this->payrollStatus = self::SALARY_STATUS_PAID;
+        } else if ($this->remainingSalaryAmount === $this->netSalary) {
+            $this->payrollStatus = self::SALARY_STATUS_UNPAID;
+        } else {
+            $this->payrollStatus = self::SALARY_STATUS_PENDING;
+        }
 
         return $this;
     }
@@ -372,5 +377,11 @@ class SalaryReport
         $this->updatedAt = $updatedAt;
 
         return $this;
+    }
+
+    public function calculateTaxAndNetSalary(): void
+    {
+        $this->taxAmount = $this->grossSalary * ($this->taxPercentage / 100);
+        $this->netSalary = $this->grossSalary - $this->taxAmount + $this->bonuses - $this->deductions;
     }
 }

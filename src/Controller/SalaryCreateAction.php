@@ -5,11 +5,9 @@ namespace App\Controller;
 use App\Component\Factory\SalaryFactory;
 use App\Component\Manager\SalaryManager;
 use App\Entity\SalaryReport;
-use App\Repository\SalaryReportRepository;
 use Exception;
-use JetBrains\PhpStorm\NoReturn;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class SalaryCreateAction extends AbstractController
 {
@@ -23,19 +21,17 @@ class SalaryCreateAction extends AbstractController
     /**
      * @throws Exception
      */
-    #[NoReturn] public function __invoke(SalaryReport $data): void
+    public function __invoke(SalaryReport $data): JsonResponse
     {
         $salaryReportData = $this->salaryFactory->create(
-            $data->getBaseSalary(),
+            $data->getGrossSalary(),
             $data->getPayPeriod(),
-            $data->getPayDate() ?? null,
             $data->getCurrency(),
             $data->getBonuses(),
             $data->getDeductions(),
             $data->getTaxInformation(),
             $data->getSalaryType(),
             $data->getPaymentMethod(),
-            $data->getPayrollStatus(),
             $data->getNotes(),
             $data->getPaidSalaryAmount(),
             $data->getEmployee()
@@ -43,13 +39,9 @@ class SalaryCreateAction extends AbstractController
 
         $this->salaryManager->save($salaryReportData, true);
 
-        exit();
-    }
-    #[NoReturn] #[Route('/salary-tax-calculator', name: 'salaryTaxCalculator')]
-    public function calculateSalaryTax(SalaryReportRepository $salaryReportRepository): void
-    {
-        $salaryReport = $salaryReportRepository->findAll();
-
-        dd($salaryReport);
+        return new JsonResponse([
+            'status' => 'Success',
+            'message' => 'Salary report created.'
+        ], 201);
     }
 }

@@ -16,6 +16,22 @@ class SalaryReportRepository extends ServiceEntityRepository
         parent::__construct($registry, SalaryReport::class);
     }
 
+    public function findAllByPayPeriod(string $payPeriod, string $year): array
+    {
+        $startDate = new \DateTime("$year-01-01 00:00:00");
+        $endDate = new \DateTime("$year-12-31 23:59:59");
+
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.payPeriod = :payPeriod')
+            ->andWhere('s.createdAt BETWEEN :startDate AND :endDate')
+            ->setParameter('payPeriod', $payPeriod)
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate)
+            ->orderBy('s.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
 //    /**
 //     * @return SalaryReport[] Returns an array of SalaryReport objects
 //     */

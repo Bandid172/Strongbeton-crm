@@ -4,22 +4,22 @@ namespace App\Component\Factory;
 
 use App\Entity\Employee;
 use App\Entity\SalaryReport;
-use App\Services\SalaryCalculator;
-use App\Services\SalaryPayrollStrategy;
+use Exception;
 
 class SalaryFactory
 {
+    /**
+     * @throws Exception
+     */
     public function create(
-        float $baseSalary,
+        float $grossSalary,
         string $payPeriod,
-        ?\DateTimeInterface $payDate,
         string $currency,
         ?int $bonuses,
         ?int $deductions,
         string $taxInformation,
         string $salaryType,
         string $paymentMethod,
-        string $payrollStatus,
         ?string $notes,
         ?float $paidSalaryAmount,
         ?Employee $employee
@@ -28,23 +28,17 @@ class SalaryFactory
         $salaryReport = new SalaryReport();
 
         $salaryReport
-            ->setBaseSalary($baseSalary)
+            ->setGrossSalary($grossSalary)
             ->setPayPeriod($payPeriod)
-            ->setpayDate($payDate)
             ->setCurrency($currency)
             ->setbonuses($bonuses)
             ->setDeductions($deductions)
             ->setTaxInformation($taxInformation)
             ->setSalaryType($salaryType)
             ->setPaymentMethod($paymentMethod)
-            ->setPayrollStatus($payrollStatus)
             ->setNotes($notes)
+            ->setPaidSalaryAmount($paidSalaryAmount)
             ->setEmployee($employee);
-
-            SalaryCalculator::calculateSalaryAndTax($salaryReport);
-
-        $strategy = SalaryPayrollStrategy::getPayrollStrategy($payrollStatus);
-        $strategy->process($salaryReport, $paidSalaryAmount);
 
         return $salaryReport;
     }
