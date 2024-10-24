@@ -38,9 +38,6 @@ class OrderFactory
     {
         $order = new Order();
 
-        $subTotal = SalesOrderCalculateSubTotal::calculateTotal($orderItem, $totalQuantity);
-        $totalAmount = SalesOrderCalculateTotalAmount::calculateTotalAmount($subTotal, $discount, $shippingCost);
-        $balanceDue = SalesOrderBalanceDueCalculator::calculateBalanceDue($totalAmount, $paidAmount);
         $paymentState = PaymentStatusStrategy::getPaymentStatus($paymentStatus);
 
         $order
@@ -56,9 +53,9 @@ class OrderFactory
             ->setShippingCost($shippingCost)
             ->setShippingRequired(true)
             ->setPaymentMethod(PaymentMethodStrategy::getPaymentMethod($paymentMethod))
-            ->setSubTotal($subTotal)
-            ->setTotalAmount($totalAmount)
-            ->setBalanceDue($balanceDue)
+            ->setSubTotal()
+            ->setTotalAmount()
+            ->setBalanceDue(123)
             ->setPaidAmount($paidAmount)
             ->setDeliveryStatus(SalesOrderStatusStrategy::getDeliveryStatus('Awaiting Shipment'))
             ->setSalesRepresentative($salesRepresentative)

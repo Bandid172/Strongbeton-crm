@@ -54,7 +54,7 @@ class Order
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['order:read'])]
+    #[Groups(['order:read'])] // number generator
     private ?string $orderNumber = null;
 
     #[ORM\ManyToOne(inversedBy: 'orders')]
@@ -68,14 +68,14 @@ class Order
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     #[Groups(['order:read'])]
-    private ?\DateTimeInterface $deliveryDate = null; // estimated delivery time
+    private ?\DateTimeInterface $deliveryDate = null; // estimated delivery time (will not be implemented yet)
 
     #[ORM\Column(length: 255)]
     #[Groups(['order:read', 'order:write'])]
-    private ?string $status = null;
+    private ?string $status = null; // by default is set to pending
 
     #[ORM\Column(length: 255)]
-    #[Groups(['order:read', 'order:write'])]
+    #[Groups(['order:read', 'order:write'])] //
     private ?string $paymentStatus = null;
 
     #[ORM\Column(length: 255)]
@@ -284,9 +284,9 @@ class Order
         return $this->subTotal;
     }
 
-    public function setSubTotal(float $subTotal): static
+    public function setSubTotal(): static
     {
-        $this->subTotal = $subTotal;
+        $this->subTotal = $this->totalQuantity * $this->orderItem->getPricePerUnit();
 
         return $this;
     }
@@ -311,6 +311,7 @@ class Order
     public function setShippingCost(?float $shippingCost): static
     {
         $this->shippingCost = $shippingCost;
+        $this->calculateTotalAmount();
 
         return $this;
     }
@@ -332,9 +333,10 @@ class Order
         return $this->totalAmount;
     }
 
-    public function setTotalAmount(float $totalAmount): static
+    public function setTotalAmount(): static
     {
-        $this->totalAmount = $totalAmount;
+        $this->totalAmount = $this->subTotal;
+        $this->calculateTotalAmount();
 
         return $this;
     }
@@ -368,9 +370,9 @@ class Order
         return $this->balanceDue;
     }
 
-    public function setBalanceDue(float $balanceDue): static
+    public function setBalanceDue(): static
     {
-        $this->balanceDue = $balanceDue;
+        $this->balanceDue = $this->totalAmount - $this->paidAmount;
 
         return $this;
     }
@@ -498,5 +500,18 @@ class Order
         $this->vehicle->removeElement($vehicle);
 
         return $this;
+    }
+
+    public function calculateTotalAmount(): void
+    {
+        if ($this->isShippingRequired()) {
+            if ($this->shippingCost !== null && $this->shippingCost > 0) {
+                $this->totalAmount += $this->shippingCost;
+            }
+        }
+
+        if ($this->discount !== null && $this->discount > 0) {
+            $this->totalAmount -= $this->discount;
+        }
     }
 }

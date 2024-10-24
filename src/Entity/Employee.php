@@ -37,6 +37,11 @@ use Symfony\Component\Serializer\Attribute\Groups;
 )]
 class Employee
 {
+    const GENDER_MALE = 'Male';
+    const GENDER_FEMALE = 'Female';
+    const STATE_ACTIVE = 'Active';
+    const STATE_INACTIVE = 'Inactive';
+    const STATE_TERMINATED = 'Terminated';
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -88,7 +93,7 @@ class Employee
     private ?\DateTimeInterface $dateOfHire = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    #[Groups(['employee:read', 'employee:write'])]
+    #[Groups(['employee:read'])]
     private ?\DateTimeInterface $dateOfTermination = null;
 
     #[ORM\Column(length: 255)]
@@ -202,6 +207,10 @@ class Employee
 
     public function setGender(string $gender): static
     {
+        if (!in_array($gender, [self::GENDER_MALE, self::GENDER_FEMALE])) {
+            throw new \InvalidArgumentException('Invalid value for gender');
+        }
+
         $this->gender = $gender;
 
         return $this;
@@ -286,6 +295,9 @@ class Employee
 
     public function setState(string $state): static
     {
+        if (!in_array($state, [self::STATE_ACTIVE, self::STATE_INACTIVE, self::STATE_TERMINATED])) {
+            throw new \InvalidArgumentException('Invalid value for state');
+        }
         $this->state = $state;
 
         return $this;

@@ -7,8 +7,10 @@ use App\Component\Factory\PaymentFactory;
 use App\Component\Manager\OrderManager;
 use App\Component\Manager\PaymentManager;
 use App\Entity\Order;
+use App\Repository\OrderRepository;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Routing\Attribute\Route;
 
 class OrderCreateAction extends AbstractController
 {
@@ -48,5 +50,13 @@ class OrderCreateAction extends AbstractController
 
         $this->paymentManager->save($payment, true);
         $this->orderManager->save($order, true);
+    }
+
+    #[Route('/dist', name: 'app_display')]
+    public function display(OrderRepository $orderRepository)
+    {
+        $orders = $orderRepository->findAll();
+
+        dd($orders);
     }
 }
