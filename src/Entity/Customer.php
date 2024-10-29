@@ -16,8 +16,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
-use Symfony\Component\Validator\Constraints as Assert;
-
 
 #[ORM\Entity(repositoryClass: CustomerRepository::class)]
 #[ApiResource(
@@ -58,9 +56,6 @@ class Customer
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['customer:read', 'customer:write'])]
-    #[Assert\Email(
-        message: 'The email {{ value }} is not a valid email address.',
-    )]
     private ?string $email = null;
 
     #[Groups(['customer:read', 'customer:write'])]

@@ -54,10 +54,6 @@ class Inflow
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['inflow:read', 'inflow:write'])]
-    private ?string $currency = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['inflow:read', 'inflow:write'])]
     private ?string $paymentMethod = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -71,6 +67,10 @@ class Inflow
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     #[Groups(['inflow:read'])]
     private ?\DateTimeInterface $updatedAt = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Currency $currency = null;
 
     public function __construct()
     {
@@ -118,25 +118,24 @@ class Inflow
         return $this;
     }
 
-    public function getCurrency(): ?string
-    {
-        return $this->currency;
-    }
-
-    public function setCurrency(?string $currency): static
-    {
-        $this->currency = $currency;
-
-        return $this;
-    }
-
     public function getPaymentMethod(): ?string
     {
         return $this->paymentMethod;
     }
 
-    public function setPaymentMethod(?string $paymentMethod): static
+    public function setPaymentMethod(string $paymentMethod): static
     {
+        if (!in_array($paymentMethod, [
+            Payment::PAYMENT_METHOD_CASH,
+            Payment::PAYMENT_METHOD_CLICK,
+            Payment::PAYMENT_METHOD_BANK_TRANSFER,
+            Payment::PAYMENT_METHOD_CREDIT_CARD,
+            Payment::PAYMENT_METHOD_PAYME,
+            Payment::PAYMENT_METHOD_UZUM_BANK
+        ]))
+        {
+            throw new \InvalidArgumentException('Invalid payment method');
+        }
         $this->paymentMethod = $paymentMethod;
 
         return $this;
@@ -174,6 +173,18 @@ class Inflow
     public function setUpdatedAt(\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getCurrency(): ?Currency
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(?Currency $currency): static
+    {
+        $this->currency = $currency;
 
         return $this;
     }

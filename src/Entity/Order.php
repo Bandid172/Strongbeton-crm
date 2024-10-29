@@ -54,7 +54,7 @@ class Order
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['order:read'])] // number generator
+    #[Groups(['order:read'])]
     private ?string $orderNumber = null;
 
     #[ORM\ManyToOne(inversedBy: 'orders')]
@@ -72,7 +72,7 @@ class Order
 
     #[ORM\Column(length: 255)]
     #[Groups(['order:read', 'order:write'])]
-    private ?string $status = null; // by default is set to pending
+    private ?string $status = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['order:read', 'order:write'])] //
@@ -103,14 +103,6 @@ class Order
     #[Groups(['order:read', 'order:write'])]
     private ?float $shippingCost = null;
 
-    #[ORM\Column]
-    #[Groups(['order:read', 'order:write'])]
-    private ?bool $isShippingRequired = null;
-
-    #[ORM\Column]
-    #[Groups(['order:read'])]
-    private ?float $totalAmount = null;
-
     #[ORM\Column(length: 255)]
     #[Groups(['order:read', 'order:write'])]
     private ?string $paymentMethod = null;
@@ -124,7 +116,7 @@ class Order
     private ?float $balanceDue = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['order:read', 'order:write'])] // enums or const vars
+    #[Groups(['order:read', 'order:write'])]
     private ?string $deliveryStatus = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
@@ -148,7 +140,7 @@ class Order
     #[Groups(['order:read'])]
     private ?\DateTimeInterface $updatedAt = null;
 
-    #[ORM\OneToOne(mappedBy: 'orderId', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(mappedBy: 'order', cascade: ['persist', 'remove'])]
     #[Groups(['order:read'])]
     private ?Payment $payment = null;
 
@@ -158,6 +150,14 @@ class Order
     #[ORM\ManyToMany(targetEntity: Vehicle::class, inversedBy: 'orders')]
     #[Groups(['order:read', 'order:write'])]
     private Collection $vehicle;
+
+    #[ORM\Column(nullable: true)]
+    #[Groups(['order:read', 'order:write'])]
+    private ?bool $shippingRequired = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Currency $currency = null;
 
     public function __construct()
     {
@@ -176,9 +176,9 @@ class Order
         return $this->orderNumber;
     }
 
-    public function setOrderNumber(string $orderNumber): static
+    public function setOrderNumber(): static
     {
-        $this->orderNumber = $orderNumber;
+        $this->orderNumber = 'S000' . random_int(1, 99999);;
 
         return $this;
     }
@@ -226,6 +226,18 @@ class Order
 
     public function setStatus(string $status): static
     {
+        if (!in_array($status, [
+            self::SALES_ORDER_PENDING,
+            self::SALES_ORDER_CONFIRMED,
+            self::SALES_ORDER_PROCESSING,
+            self::SALES_ORDER_ON_HOLD,
+            self::SALES_ORDER_CANCELLED,
+            self::SALES_ORDER_COMPLETED
+        ]))
+        {
+            throw new \InvalidArgumentException('Invalid order status');
+        }
+
         $this->status = $status;
 
         return $this;
@@ -238,6 +250,10 @@ class Order
 
     public function setPaymentStatus(string $paymentStatus): static
     {
+        if (!in_array($paymentStatus, [Payment::PAYMENT_AWAITING, Payment::PAYMENT_RECEIVED, Payment::PAYMENT_PARTIALLY_MADE]))
+        {
+            throw new \InvalidArgumentException('Invalid payment status');
+        }
         $this->paymentStatus = $paymentStatus;
 
         return $this;
@@ -263,6 +279,7 @@ class Order
     public function setOrderItem(?Product $orderItem): static
     {
         $this->orderItem = $orderItem;
+        $this->setSubTotal();
 
         return $this;
     }
@@ -275,6 +292,7 @@ class Order
     public function setTotalQuantity(int $totalQuantity): static
     {
         $this->totalQuantity = $totalQuantity;
+        $this->setSubTotal();
 
         return $this;
     }
@@ -288,6 +306,14 @@ class Order
     {
         $this->subTotal = $this->totalQuantity * $this->orderItem->getPricePerUnit();
 
+        if ($this->shippingRequired && $this->shippingCost > 0) {
+            $this->subTotal += $this->shippingCost;
+        }
+
+        if ($this->discount !== null && $this->discount > 0) {
+            $this->subTotal -= $this->discount;
+        }
+
         return $this;
     }
 
@@ -299,6 +325,7 @@ class Order
     public function setDiscount(?float $discount): static
     {
         $this->discount = $discount;
+        $this->setSubTotal();
 
         return $this;
     }
@@ -311,32 +338,7 @@ class Order
     public function setShippingCost(?float $shippingCost): static
     {
         $this->shippingCost = $shippingCost;
-        $this->calculateTotalAmount();
-
-        return $this;
-    }
-
-    public function isShippingRequired(): ?bool
-    {
-        return $this->isShippingRequired;
-    }
-
-    public function setShippingRequired(bool $isShippingRequired): static
-    {
-        $this->isShippingRequired = $isShippingRequired;
-
-        return $this;
-    }
-
-    public function getTotalAmount(): ?float
-    {
-        return $this->totalAmount;
-    }
-
-    public function setTotalAmount(): static
-    {
-        $this->totalAmount = $this->subTotal;
-        $this->calculateTotalAmount();
+        $this->setSubTotal();
 
         return $this;
     }
@@ -348,6 +350,17 @@ class Order
 
     public function setPaymentMethod(string $paymentMethod): static
     {
+        if (!in_array($paymentMethod, [
+            Payment::PAYMENT_METHOD_CASH,
+            Payment::PAYMENT_METHOD_CLICK,
+            Payment::PAYMENT_METHOD_BANK_TRANSFER,
+            Payment::PAYMENT_METHOD_CREDIT_CARD,
+            Payment::PAYMENT_METHOD_PAYME,
+            Payment::PAYMENT_METHOD_UZUM_BANK
+        ]))
+        {
+            throw new \InvalidArgumentException('Invalid payment method');
+        }
         $this->paymentMethod = $paymentMethod;
 
         return $this;
@@ -360,7 +373,14 @@ class Order
 
     public function setPaidAmount(float $paidAmount): static
     {
+        $this->setSubTotal();
+
+        if ($paidAmount > $this->subTotal) {
+            throw new \InvalidArgumentException("Paid amount must be equal or less than subtotal.");
+        }
+
         $this->paidAmount = $paidAmount;
+        $this->setBalanceDue();
 
         return $this;
     }
@@ -372,7 +392,7 @@ class Order
 
     public function setBalanceDue(): static
     {
-        $this->balanceDue = $this->totalAmount - $this->paidAmount;
+        $this->balanceDue = $this->subTotal - $this->paidAmount;
 
         return $this;
     }
@@ -396,6 +416,14 @@ class Order
 
     public function setDeliveryStatus(string $deliveryStatus): static
     {
+        if (!in_array($deliveryStatus, [
+            Order::SALES_ORDER_DELIVERY_PENDING,
+            Order::SALES_ORDER_ENROUTE,
+            Order::SALES_ORDER_DELIVERED
+        ]))
+        {
+            throw new \InvalidArgumentException('Invalid delivery status');
+        }
         $this->deliveryStatus = $deliveryStatus;
 
         return $this;
@@ -502,16 +530,27 @@ class Order
         return $this;
     }
 
-    public function calculateTotalAmount(): void
+    public function isShippingRequired(): ?bool
     {
-        if ($this->isShippingRequired()) {
-            if ($this->shippingCost !== null && $this->shippingCost > 0) {
-                $this->totalAmount += $this->shippingCost;
-            }
-        }
+        return $this->shippingRequired;
+    }
 
-        if ($this->discount !== null && $this->discount > 0) {
-            $this->totalAmount -= $this->discount;
-        }
+    public function setShippingRequired(?bool $shippingRequired): static
+    {
+        $this->shippingRequired = $shippingRequired;
+
+        return $this;
+    }
+
+    public function getCurrency(): ?Currency
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(?Currency $currency): static
+    {
+        $this->currency = $currency;
+
+        return $this;
     }
 }

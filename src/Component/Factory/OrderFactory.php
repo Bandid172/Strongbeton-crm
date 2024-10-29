@@ -6,13 +6,6 @@ use App\Entity\Customer;
 use App\Entity\Employee;
 use App\Entity\Order;
 use App\Entity\Product;
-use App\Services\OrderNumberGenerator;
-use App\Services\PaymentMethodStrategy;
-use App\Services\PaymentStatusStrategy;
-use App\Services\SalesOrderBalanceDueCalculator;
-use App\Services\SalesOrderCalculateSubTotal;
-use App\Services\SalesOrderCalculateTotalAmount;
-use App\Services\SalesOrderStatusStrategy;
 use Exception;
 
 class OrderFactory
@@ -28,6 +21,7 @@ class OrderFactory
         Product $orderItem,
         int $totalQuantity,
         float $discount,
+        bool $isShippingRequired,
         float $shippingCost,
         string $paymentMethod,
         float $paidAmount,
@@ -38,26 +32,22 @@ class OrderFactory
     {
         $order = new Order();
 
-        $paymentState = PaymentStatusStrategy::getPaymentStatus($paymentStatus);
-
         $order
             ->setCustomer($customer)
-            ->setOrderNumber(OrderNumberGenerator::generateOrderNumber())
+            ->setOrderNumber()
             ->setOrderDate($orderDate)
-            ->setStatus(SalesOrderStatusStrategy::getSalesOrderStatus('Pending'))
-            ->setPaymentStatus($paymentState)
+            ->setStatus('Pending')
+            ->setPaymentStatus($paymentStatus)
             ->setShippingAddress($shippingAddress)
             ->setOrderItem($orderItem)
             ->setTotalQuantity($totalQuantity)
             ->setDiscount($discount)
+            ->setShippingRequired($isShippingRequired)
             ->setShippingCost($shippingCost)
-            ->setShippingRequired(true)
-            ->setPaymentMethod(PaymentMethodStrategy::getPaymentMethod($paymentMethod))
+            ->setPaymentMethod($paymentMethod)
             ->setSubTotal()
-            ->setTotalAmount()
-            ->setBalanceDue(123)
             ->setPaidAmount($paidAmount)
-            ->setDeliveryStatus(SalesOrderStatusStrategy::getDeliveryStatus('Awaiting Shipment'))
+            ->setDeliveryStatus('Awaiting Shipment')
             ->setSalesRepresentative($salesRepresentative)
             ->setNotes($notes);
 

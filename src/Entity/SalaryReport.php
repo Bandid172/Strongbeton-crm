@@ -51,10 +51,6 @@ class SalaryReport
     #[Groups(['salaryReport:read'])]
     private ?\DateTimeInterface $payDate = null;
 
-    #[ORM\Column(length: 255)]
-    #[Groups(['salaryReport:read', 'salaryReport:write'])]
-    private ?string $currency = null; //
-
     #[ORM\Column]
     #[Groups(['salaryReport:read', 'salaryReport:write'])]
     private ?float $grossSalary = null;
@@ -89,7 +85,7 @@ class SalaryReport
 
     #[ORM\Column(length: 255)]
     #[Groups(['salaryReport:read', 'salaryReport:write'])]
-    private ?string $paymentMethod = null; //
+    private ?string $paymentMethod = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['salaryReport:read'])]
@@ -119,6 +115,10 @@ class SalaryReport
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     #[Groups(['salaryReport:read'])]
     private ?\DateTimeInterface $updatedAt = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Currency $currency = null;
 
     public function __construct()
     {
@@ -151,18 +151,6 @@ class SalaryReport
     public function setPayDate(?\DateTimeInterface $payDate): static
     {
         $this->payDate = $payDate;
-
-        return $this;
-    }
-
-    public function getCurrency(): ?string
-    {
-        return $this->currency;
-    }
-
-    public function setCurrency(string $currency): static
-    {
-        $this->currency = $currency;
 
         return $this;
     }
@@ -270,6 +258,18 @@ class SalaryReport
 
     public function setPaymentMethod(string $paymentMethod): static
     {
+        if (!in_array($paymentMethod, [
+            Payment::PAYMENT_METHOD_CASH,
+            Payment::PAYMENT_METHOD_CLICK,
+            Payment::PAYMENT_METHOD_BANK_TRANSFER,
+            Payment::PAYMENT_METHOD_CREDIT_CARD,
+            Payment::PAYMENT_METHOD_PAYME,
+            Payment::PAYMENT_METHOD_UZUM_BANK
+        ]))
+        {
+            throw new \InvalidArgumentException('Invalid payment method');
+        }
+
         $this->paymentMethod = $paymentMethod;
 
         return $this;
@@ -285,6 +285,7 @@ class SalaryReport
         if (!in_array($payrollStatus, [self::SALARY_STATUS_PAID, self::SALARY_STATUS_PENDING, self::SALARY_STATUS_UNPAID])) {
             throw new \InvalidArgumentException("Invalid payment status");
         }
+
         $this->payrollStatus = $payrollStatus;
 
         return $this;
@@ -383,5 +384,17 @@ class SalaryReport
     {
         $this->taxAmount = $this->grossSalary * ($this->taxPercentage / 100);
         $this->netSalary = $this->grossSalary - $this->taxAmount + $this->bonuses - $this->deductions;
+    }
+
+    public function getCurrency(): ?Currency
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(?Currency $currency): static
+    {
+        $this->currency = $currency;
+
+        return $this;
     }
 }

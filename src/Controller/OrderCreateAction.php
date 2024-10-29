@@ -26,7 +26,7 @@ class OrderCreateAction extends AbstractController
     /**
      * @throws Exception
      */
-    public function __invoke(Order $data): void
+    public function __invoke(Order $data): Order
     {
         $order = $this->orderFactory->create(
             $data->getCustomer(),
@@ -36,6 +36,7 @@ class OrderCreateAction extends AbstractController
             $data->getOrderItem(),
             $data->getTotalQuantity(),
             $data->getDiscount(),
+            $data->isShippingRequired(),
             $data->getShippingCost(),
             $data->getPaymentMethod(),
             $data->getPaidAmount(),
@@ -50,6 +51,8 @@ class OrderCreateAction extends AbstractController
 
         $this->paymentManager->save($payment, true);
         $this->orderManager->save($order, true);
+
+        return $order;
     }
 
     #[Route('/dist', name: 'app_display')]

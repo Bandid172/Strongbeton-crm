@@ -34,7 +34,7 @@ class Payment
     #[ORM\OneToOne(inversedBy: 'payment', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['payment:read', 'payment:write'])]
-    private ?Order $orderId = null;
+    private ?Order $order = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     #[Groups(['payment:read'])]
@@ -45,20 +45,16 @@ class Payment
     private ?float $amountPaid = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['payment:read', 'payment:write'])] // use enums or const vars
+    #[Groups(['payment:read', 'payment:write'])]
     private ?string $paymentMethod = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['payment:read', 'payment:write'])] // use enums or const vars
+    #[Groups(['payment:read', 'payment:write'])]
     private ?string $paymentStatus = null;
 
     #[ORM\Column]
     #[Groups(['payment:read'])]
     private ?float $balanceDue = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['payment:read', 'payment:write'])]
-    private ?string $currency = null; // set on edit action
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups(['payment:read', 'payment:write'])]
@@ -76,6 +72,10 @@ class Payment
     #[Groups(['payment:read'])]
     private ?Customer $customer = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Currency $currency = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -88,12 +88,12 @@ class Payment
 
     public function getOrderId(): ?Order
     {
-        return $this->orderId;
+        return $this->order;
     }
 
     public function setOrderId(Order $orderId): static
     {
-        $this->orderId = $orderId;
+        $this->order = $orderId;
 
         return $this;
     }
@@ -129,6 +129,18 @@ class Payment
 
     public function setPaymentMethod(string $paymentMethod): static
     {
+        if (!in_array($paymentMethod, [
+            Payment::PAYMENT_METHOD_CASH,
+            Payment::PAYMENT_METHOD_CLICK,
+            Payment::PAYMENT_METHOD_BANK_TRANSFER,
+            Payment::PAYMENT_METHOD_CREDIT_CARD,
+            Payment::PAYMENT_METHOD_PAYME,
+            Payment::PAYMENT_METHOD_UZUM_BANK
+        ]))
+        {
+            throw new \InvalidArgumentException('Invalid payment method');
+        }
+
         $this->paymentMethod = $paymentMethod;
 
         return $this;
@@ -141,6 +153,14 @@ class Payment
 
     public function setPaymentStatus(string $paymentStatus): static
     {
+        if (!in_array($paymentStatus, [
+                PAYMENT::PAYMENT_RECEIVED,
+                PAYMENT::PAYMENT_AWAITING,
+                PAYMENT::PAYMENT_PARTIALLY_MADE
+            ])) {
+            throw new \InvalidArgumentException('Invalid payment status');
+        }
+
         $this->paymentStatus = $paymentStatus;
 
         return $this;
@@ -154,18 +174,6 @@ class Payment
     public function setBalanceDue(float $balanceDue): static
     {
         $this->balanceDue = $balanceDue;
-
-        return $this;
-    }
-
-    public function getCurrency(): ?string
-    {
-        return $this->currency;
-    }
-
-    public function setCurrency(?string $currency): static
-    {
-        $this->currency = $currency;
 
         return $this;
     }
@@ -214,6 +222,18 @@ class Payment
     public function setCustomer(?Customer $customer): static
     {
         $this->customer = $customer;
+
+        return $this;
+    }
+
+    public function getCurrency(): ?Currency
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(?Currency $currency): static
+    {
+        $this->currency = $currency;
 
         return $this;
     }

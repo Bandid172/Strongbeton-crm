@@ -50,10 +50,6 @@ class Product
     #[Groups(['product:read', 'product:write'])]
     private ?string $description = null;
 
-    #[ORM\Column(length: 255)]
-    #[Groups(['product:read', 'product:write'])]
-    private ?string $uom = null;
-
     #[ORM\Column]
     #[Groups(['product:read', 'product:write'])]
     private ?bool $enabled = null;
@@ -98,6 +94,14 @@ class Product
     #[Groups(['product:read', 'product:write'])]
     private ?float $requiredStoneAmount = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Currency $currency = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Uom $uom = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -128,18 +132,6 @@ class Product
     public function setDescription(?string $description): static
     {
         $this->description = $description;
-
-        return $this;
-    }
-
-    public function getUom(): ?string
-    {
-        return $this->uom;
-    }
-
-    public function setUom(string $uom): static
-    {
-        $this->uom = $uom;
 
         return $this;
     }
@@ -272,6 +264,30 @@ class Product
     public function setRequiredStoneAmount(float $requiredStoneAmount): static
     {
         $this->requiredStoneAmount = $requiredStoneAmount;
+
+        return $this;
+    }
+
+    public function getCurrency(): ?Currency
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(?Currency $currency): static
+    {
+        $this->currency = $currency;
+
+        return $this;
+    }
+
+    public function getUom(): ?Uom
+    {
+        return $this->uom;
+    }
+
+    public function setUom(?Uom $uom): static
+    {
+        $this->uom = $uom;
 
         return $this;
     }

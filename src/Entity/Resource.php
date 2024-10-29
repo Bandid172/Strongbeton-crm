@@ -49,10 +49,6 @@ class Resource
     #[Groups(['resource:read', 'resource:write'])]
     private ?float $quantity = null;
 
-    #[ORM\Column(length: 255)]
-    #[Groups(['resource:read', 'resource:write'])]
-    private ?string $resource_uom = null;
-
     #[ORM\Column(nullable: true)]
     #[Groups(['resource:read', 'resource:write'])]
     private ?int $cost = null;
@@ -64,6 +60,14 @@ class Resource
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     #[Groups(['resource:read'])]
     private ?\DateTimeInterface $updatedAt = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Currency $currency = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Uom $uom = null;
 
     public function __construct()
     {
@@ -95,18 +99,6 @@ class Resource
     public function setQuantity(float $quantity): static
     {
         $this->quantity = $quantity;
-
-        return $this;
-    }
-
-    public function getResourceUom(): ?string
-    {
-        return $this->resource_uom;
-    }
-
-    public function setResourceUom(string $resource_uom): static
-    {
-        $this->resource_uom = $resource_uom;
 
         return $this;
     }
@@ -143,6 +135,30 @@ class Resource
     public function setUpdatedAt(\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getCurrency(): ?Currency
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(?Currency $currency): static
+    {
+        $this->currency = $currency;
+
+        return $this;
+    }
+
+    public function getUom(): ?Uom
+    {
+        return $this->uom;
+    }
+
+    public function setUom(?Uom $uom): static
+    {
+        $this->uom = $uom;
 
         return $this;
     }
