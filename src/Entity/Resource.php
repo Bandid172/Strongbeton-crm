@@ -63,10 +63,12 @@ class Resource
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['resource:read', 'resource:write'])]
     private ?Currency $currency = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['resource:read', 'resource:write'])]
     private ?Uom $uom = null;
 
     public function __construct()

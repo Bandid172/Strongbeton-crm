@@ -42,7 +42,8 @@ class OrderCreateAction extends AbstractController
             $data->getPaidAmount(),
             $data->getSalesRepresentative(),
             $data->getNotes(),
-            $data->getVehicle()
+            $data->getVehicle(),
+            $data->getCurrency()
         );
 
         $payment = $this->paymentFactory->create($order);

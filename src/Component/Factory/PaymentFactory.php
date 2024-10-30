@@ -20,7 +20,8 @@ class PaymentFactory
             ->setPaymentMethod($order->getPaymentMethod())
             ->setPaymentStatus($order->getPaymentStatus())
             ->setBalanceDue($order->getBalanceDue())
-            ->setCustomer($order->getCustomer());
+            ->setCustomer($order->getCustomer())
+            ->setCurrency($order->getCurrency());
 
         return $payment;
     }

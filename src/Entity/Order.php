@@ -157,6 +157,7 @@ class Order
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['order:read', 'order:write'])]
     private ?Currency $currency = null;
 
     public function __construct()

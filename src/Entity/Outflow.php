@@ -70,6 +70,7 @@ class Outflow
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['outflow:read', 'outflow:write'])]
     private ?Currency $currency = null;
 
     public function __construct()

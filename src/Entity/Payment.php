@@ -3,13 +3,32 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Repository\PaymentRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\DocBlock\Tags\Reference\Url;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: PaymentRepository::class)]
 #[ApiResource(
+    operations: [
+        new Post(
+            uriTemplate: '/create-payment',
+            controller: PaymentCreateAction::class,
+            name: 'create_payment'
+        ),
+        new Get(),
+        new GetCollection(),
+        new Put,
+        new Delete(),
+        new Patch()
+    ],
     normalizationContext: ['groups' => ['payment:read']],
     denormalizationContext: ['groups' => ['payment:write']],
 )]
@@ -74,6 +93,7 @@ class Payment
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['payment:read', 'payment:write'])]
     private ?Currency $currency = null;
 
     public function __construct()

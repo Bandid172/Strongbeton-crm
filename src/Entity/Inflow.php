@@ -70,6 +70,7 @@ class Inflow
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['inflow:read', 'inflow:write'])]
     private ?Currency $currency = null;
 
     public function __construct()

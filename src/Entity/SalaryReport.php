@@ -118,6 +118,7 @@ class SalaryReport
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['salaryReport:read', 'salaryReport:write'])]
     private ?Currency $currency = null;
 
     public function __construct()

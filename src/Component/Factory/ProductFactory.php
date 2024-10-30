@@ -2,7 +2,9 @@
 
 namespace App\Component\Factory;
 
+use App\Entity\Currency;
 use App\Entity\Product;
+use App\Entity\Uom;
 use App\Repository\ResourceRepository;
 use App\Services\ProductCalculateMaximumStock;
 use Exception;
@@ -21,14 +23,15 @@ class ProductFactory
     public function create(
         string $name,
         string $description,
-        string $uom,
+        Uom $uom,
         bool $enabled,
         float $pricePerUnit,
         float $costPerUnit,
         float $requiredSand,
         float $requiredCement,
         float $requiredWater,
-        float $requiredStone
+        float $requiredStone,
+        Currency $currency,
     ): Product
     {
         $product = new Product();
@@ -46,7 +49,8 @@ class ProductFactory
             ->setRequiredSandAmount($requiredSand)
             ->setRequiredCementAmount($requiredCement)
             ->setRequiredWaterAmount($requiredWater)
-            ->setRequiredStoneAmount($requiredStone);
+            ->setRequiredStoneAmount($requiredStone)
+            ->setCurrency($currency);
 
         ProductCalculateMaximumStock::updateInventoryStatus($product);
 

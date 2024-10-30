@@ -2,6 +2,7 @@
 
 namespace App\Component\Factory;
 
+use App\Entity\Currency;
 use App\Entity\Customer;
 use App\Entity\Employee;
 use App\Entity\Order;
@@ -28,6 +29,7 @@ class OrderFactory
         Employee $salesRepresentative,
         string $notes,
         iterable $vehicles,
+        Currency $currency
     ): Order
     {
         $order = new Order();
@@ -49,7 +51,8 @@ class OrderFactory
             ->setPaidAmount($paidAmount)
             ->setDeliveryStatus('Awaiting Shipment')
             ->setSalesRepresentative($salesRepresentative)
-            ->setNotes($notes);
+            ->setNotes($notes)
+            ->setCurrency($currency);
 
         foreach ($vehicles as $vehicle) {
             $order->addVehicle($vehicle);

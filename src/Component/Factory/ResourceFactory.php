@@ -2,18 +2,26 @@
 
 namespace App\Component\Factory;
 
+use App\Entity\Currency;
 use App\Entity\Resource;
+use App\Entity\Uom;
 
 class ResourceFactory
 {
-    public function create(string $name, float $quantity, string $resource_uom): Resource
+    public function create(
+        string $name,
+        float $quantity,
+        Uom $resource_uom,
+        Currency $currency,
+    ): Resource
     {
         $resource = new Resource();
 
         $resource
             ->setName($name)
             ->setQuantity($quantity)
-            ->setResourceUom($resource_uom);
+            ->setUom($resource_uom)
+            ->setCurrency($currency);
 
         return $resource;
     }

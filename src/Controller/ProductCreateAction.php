@@ -36,7 +36,8 @@ class ProductCreateAction extends AbstractController
             $data->getRequiredSandAmount(),
             $data->getRequiredCementAmount(),
             $data->getRequiredWaterAmount(),
-            $data->getRequiredStoneAmount()
+            $data->getRequiredStoneAmount(),
+            $data->getCurrency()
         );
 
         $this->productManager->save($product, true);

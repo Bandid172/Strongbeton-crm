@@ -22,9 +22,9 @@ class InflowCreateAction extends AbstractController
             $data->getTransactionDate(),
             $data->getRevenueSource(),
             $data->getAmount(),
-            $data->getCurrency(),
             $data->getPaymentMethod(),
-            $data->getNotes()
+            $data->getNotes(),
+            $data->getCurrency()
         );
 
         $this->inflowManager->save($inflow, true);

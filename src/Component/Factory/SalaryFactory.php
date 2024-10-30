@@ -2,6 +2,7 @@
 
 namespace App\Component\Factory;
 
+use App\Entity\Currency;
 use App\Entity\Employee;
 use App\Entity\SalaryReport;
 use Exception;
@@ -14,7 +15,7 @@ class SalaryFactory
     public function create(
         float $grossSalary,
         string $payPeriod,
-        string $currency,
+        Currency $currency,
         ?int $bonuses,
         ?int $deductions,
         string $taxInformation,

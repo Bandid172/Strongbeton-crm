@@ -2,6 +2,7 @@
 
 namespace App\Component\Factory;
 
+use App\Entity\Currency;
 use App\Entity\Inflow;
 
 class InflowFactory
@@ -10,9 +11,9 @@ class InflowFactory
         \DateTimeInterface $transactionDate,
         string $revenueSource,
         float $amount,
-        string $currency,
         string $paymentMethod,
-        string $notes
+        string $notes,
+        Currency $currency
     ): Inflow
     {
         $inflow = new Inflow();

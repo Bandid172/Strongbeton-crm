@@ -2,6 +2,7 @@
 
 namespace App\Component\Factory;
 
+use App\Entity\Currency;
 use App\Entity\Outflow;
 
 class OutflowFactory
@@ -10,7 +11,7 @@ class OutflowFactory
         \DateTimeInterface $transactionDate,
         string $expenseCategory,
         float $amount,
-        string $currency,
+        Currency $currency,
         string $paymentMethod,
         string $expenseDescription,
     ): Outflow

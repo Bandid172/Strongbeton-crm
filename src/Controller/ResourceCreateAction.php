@@ -23,7 +23,12 @@ class ResourceCreateAction extends AbstractController
      */
     #[NoReturn] public function __invoke(Resource $data): void
     {
-        $resource = $this->resourceFactory->create($data->getName(), $data->getQuantity(), $data->getResourceUom());
+        $resource = $this->resourceFactory->create(
+            $data->getName(),
+            $data->getQuantity(),
+            $data->getUom(),
+            $data->getCurrency()
+        );
 
         $this->resourceManager->save($resource, true);
 

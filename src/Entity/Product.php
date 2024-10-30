@@ -96,10 +96,12 @@ class Product
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['product:read', 'product:write'])]
     private ?Currency $currency = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['product:read', 'product:write'])]
     private ?Uom $uom = null;
 
     public function __construct()
