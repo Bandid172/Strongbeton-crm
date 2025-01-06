@@ -9,7 +9,6 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Controller\ProductCreateAction;
 use App\Controller\ResourceCreateAction;
 use App\Repository\ResourceRepository;
 use Doctrine\DBAL\Types\Types;
@@ -163,5 +162,10 @@ class Resource
         $this->uom = $uom;
 
         return $this;
+    }
+
+    public function calculateCapacity(int $requiredQuantity): int
+    {
+        return (int) floor($this->getQuantity() / $requiredQuantity);
     }
 }

@@ -6,7 +6,6 @@ use App\Entity\Currency;
 use App\Entity\Product;
 use App\Entity\Uom;
 use App\Repository\ResourceRepository;
-use App\Services\ProductCalculateMaximumStock;
 use Exception;
 
 class ProductFactory
@@ -35,9 +34,6 @@ class ProductFactory
     ): Product
     {
         $product = new Product();
-
-        $maxProductStock = ProductCalculateMaximumStock::calculate($this->resourceRepository,$requiredSand, $requiredCement, $requiredWater, $requiredStone);
-
         $product
             ->setName($name)
             ->setDescription($description)
@@ -45,14 +41,12 @@ class ProductFactory
             ->setEnabled($enabled)
             ->setPricePerUnit($pricePerUnit)
             ->setCostPerUnit($costPerUnit)
-            ->setStockQuantity($maxProductStock)
             ->setRequiredSandAmount($requiredSand)
             ->setRequiredCementAmount($requiredCement)
             ->setRequiredWaterAmount($requiredWater)
             ->setRequiredStoneAmount($requiredStone)
-            ->setCurrency($currency);
-
-        ProductCalculateMaximumStock::updateInventoryStatus($product);
+            ->setCurrency($currency)
+            ->calculateStockQuantity($this->resourceRepository);
 
         return $product;
     }

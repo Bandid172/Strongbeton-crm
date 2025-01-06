@@ -11,8 +11,10 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Controller\ProductCreateAction;
 use App\Repository\ProductRepository;
+use App\Repository\ResourceRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
@@ -215,9 +217,13 @@ class Product
         return $this->inventoryStatus;
     }
 
-    public function setInventoryStatus(string $inventoryStatus): static
+    public function setInventoryStatus(): static
     {
-        $this->inventoryStatus = $inventoryStatus;
+        if ($this->getStockQuantity() > 0) {
+            $this->inventoryStatus = self::IN_STOCK;
+        } else {
+            $this->inventoryStatus = self::OUT_OF_STOCK;
+        }
 
         return $this;
     }
@@ -292,5 +298,32 @@ class Product
         $this->uom = $uom;
 
         return $this;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function calculateStockQuantity(ResourceRepository $resourceRepository): int
+    {
+        $requiredResources = [
+            'sand' => $this->getRequiredSandAmount(),
+            'cement' => $this->getRequiredCementAmount(),
+            'water' => $this->getRequiredWaterAmount(),
+            'stone' => $this->getRequiredStoneAmount(),
+        ];
+
+        $capacities = [];
+        foreach ($requiredResources as $resourceName => $requiredAmount) {
+            $resource = $resourceRepository->findOneBy(['name' => $resourceName]);
+            if (!$resource) {
+                throw new Exception("Resource {$resourceName} is not available.");
+            }
+            $capacities[] = $resource->calculateCapacity($requiredAmount);
+        }
+
+        $this->setStockQuantity(min($capacities));
+        $this->setInventoryStatus();
+
+        return $this->getStockQuantity();
     }
 }

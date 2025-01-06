@@ -18,11 +18,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\Entity(repositoryClass: PaymentRepository::class)]
 #[ApiResource(
     operations: [
-        new Post(
-            uriTemplate: '/create-payment',
-            controller: PaymentCreateAction::class,
-            name: 'create_payment'
-        ),
+        new Post(),
         new Get(),
         new GetCollection(),
         new Put,
